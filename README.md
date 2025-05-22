@@ -2,7 +2,7 @@ The installer of Backstage.
 
 ## Install
 ```bash
-composer require -g backstage/installer
+composer global require backstage/installer
 ```
 
 ## Create a new site
