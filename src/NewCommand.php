@@ -221,7 +221,7 @@ class NewCommand extends Command
             }
 
             $output->writeln('');
-            $output->writeln('New to <fg=magenta>Backstage</>? Check the <href=https://docs.backstagephp.com/quick-start.html>script</> and <options=bold>enjoy the performance!</>');
+            $output->writeln('New to <fg=magenta>Backstage</>? Check the <options=bold;href=https://docs.backstagephp.com/quick-start.html>script</> and <options=bold>enjoy the performance!</>');
             $output->writeln('');
         }
 
