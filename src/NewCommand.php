@@ -202,6 +202,13 @@ class NewCommand extends Command
                         )),
                     ];
 
+                    $commands = [
+                        trim(sprintf(
+                            $this->phpBinary().' artisan backstage:upgrade %s',
+                            ! $input->isInteractive() ? '--no-interaction' : '',
+                        )),
+                    ];
+
                     $this->runCommands($commands, $input, $output, workingPath: $directory);
                 }
             }
@@ -220,8 +227,9 @@ class NewCommand extends Command
                 $output->writeln('<fg=gray>➜</> <options=bold>php artisan serve</>');
             }
 
+            $output->writeln('Open /backstage to get started with your new stage!'.PHP_EOL);
             $output->writeln('');
-            $output->writeln('New to <fg=magenta>Backstage</>? Check the <options=bold;href=https://docs.backstagephp.com/quick-start.html>script</> and <options=bold>enjoy the performance!</>');
+            $output->writeln('New to <fg=magenta>Backstage</>? Check https://docs.backstagephp.com/quick-start.html and <options=bold>enjoy the performance!</>');
             $output->writeln('');
         }
 
