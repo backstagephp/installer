@@ -161,7 +161,7 @@ class NewCommand extends Command
         $composer = $this->findComposer();
         $phpBinary = $this->phpBinary();
 
-        $createProjectCommand = $composer." create-project backstage/site \"$directory\" --remove-vcs --prefer-dist --no-scripts --repository='{\"url\": \"git@github.com:backstagephp/site.git\", \"type\": \"vcs\"}' --stability=dev";
+        $createProjectCommand = $composer." create-project backstage/stage \"$directory\" --remove-vcs --prefer-dist --no-scripts --stability=dev";
 
         $commands = [
             $createProjectCommand,
