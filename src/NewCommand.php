@@ -224,10 +224,10 @@ class NewCommand extends Command
                 $url = $this->generateAppUrl($name, $directory);
                 $output->writeln('<fg=gray>➜</> Open: <options=bold;href='.$url.'>'.$url.'</>');
             } else {
-                $output->writeln('<fg=gray>➜</> <options=bold>php artisan serve</>');
+                $output->writeln('<fg=gray>➜</> <options=bold>npm run dev</>');
             }
 
-            $output->writeln('Open /backstage to get started with your new stage!'.PHP_EOL);
+            $output->writeln('Next step: php artisan filament:create-user and open /backstage to get started with your new stage!'.PHP_EOL);
             $output->writeln('');
             $output->writeln('New to <fg=magenta>Backstage</>? Check https://docs.backstagephp.com/quick-start.html and <options=bold>enjoy the performance!</>');
             $output->writeln('');
