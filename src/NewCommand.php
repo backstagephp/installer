@@ -187,6 +187,11 @@ class NewCommand extends Command
                     'APP_URL=http://localhost',
                     'APP_URL='.$this->generateAppUrl($name, $directory),
                     $directory.'/.env'
+                )
+                ;$this->replaceInFile(
+                    'DB_DATABASE=site',
+                    'DB_DATABASE='.str_replace('-', '_', strtolower($name)),
+                    $directory.'/.env'
                 );
 
                 [$database, $migrate] = $this->promptForDatabaseOptions($directory, $input);
