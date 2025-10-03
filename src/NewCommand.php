@@ -214,6 +214,14 @@ class NewCommand extends Command
                         )),
                     ];
 
+                    if ($input->isInteractive()) {
+                        $commands = [
+                            trim(sprintf(
+                                $this->phpBinary().' artisan filament:user',
+                            )),
+                        ];
+                    }
+
                     $this->runCommands($commands, $input, $output, workingPath: $directory);
                 }
             }
@@ -232,8 +240,6 @@ class NewCommand extends Command
                 $output->writeln('<fg=gray>➜</> <options=bold>php artisan serve</>');
             }
 
-            $output->writeln('Next step: php artisan filament:create-user and open /backstage to get started with your new stage!'.PHP_EOL);
-            $output->writeln('');
             $output->writeln('New to <fg=magenta>Backstage</>? Check https://docs.backstagephp.com/quick-start.html and <options=bold>enjoy the performance!</>');
             $output->writeln('');
         }
@@ -426,13 +432,9 @@ class NewCommand extends Command
      */
     protected function generateAppUrl($name, $directory)
     {
-        if (! $this->isParkedOnHerdOrValet($directory)) {
-            return 'http://localhost:8000';
-        }
-
         $hostname = mb_strtolower($name).'.'.$this->getTld();
 
-        return $this->canResolveHostname($hostname) ? 'http://'.$hostname : 'http://localhost';
+        return $this->canResolveHostname($hostname) ? 'https://'.$hostname : 'https://'. $directory .'.test';
     }
 
     /**
