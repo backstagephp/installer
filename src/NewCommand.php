@@ -202,24 +202,15 @@ class NewCommand extends Command
 
                     $commands = [
                         trim(sprintf(
-                            $this->phpBinary().' artisan migrate %s',
-                            ! $input->isInteractive() ? '--no-interaction' : '',
-                        )),
-                    ];
-
-                    $commands = [
-                        trim(sprintf(
                             $this->phpBinary().' artisan backstage:upgrade %s',
                             ! $input->isInteractive() ? '--no-interaction' : '',
                         )),
                     ];
 
                     if ($input->isInteractive()) {
-                        $commands = [
-                            trim(sprintf(
-                                $this->phpBinary().' artisan filament:user',
-                            )),
-                        ];
+                        $commands[] = trim(sprintf(
+                            $this->phpBinary().' artisan filament:user',
+                        ));
                     }
 
                     $this->runCommands($commands, $input, $output, workingPath: $directory);
