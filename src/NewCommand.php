@@ -219,6 +219,8 @@ class NewCommand extends Command
 
             $this->configureComposerDevScript($directory);
 
+            $this->configureGitignore($directory);
+
             $this->runCommands(['npm install', 'npm run build'], $input, $output, workingPath: $directory);
 
             $output->writeln("  <bg=magenta;fg=white> INFO </> The stage <options=bold>[{$name}]</> is yours. You can start your local development using:".PHP_EOL);
@@ -399,6 +401,27 @@ class NewCommand extends Command
 
             return $content;
         });
+    }
+
+    /**
+     * Configure the .gitignore file for the project.
+     *
+     * @param  string  $directory
+     * @return void
+     */
+    protected function configureGitignore(string $directory): void
+    {
+        $gitignorePath = $directory.'/.gitignore';
+        
+        if (file_exists($gitignorePath)) {
+            $content = file_get_contents($gitignorePath);
+            
+            // Add /public/fonts if it's not already present
+            if (strpos($content, '/public/fonts') === false) {
+                $content = rtrim($content) . PHP_EOL . '/public/fonts' . PHP_EOL;
+                file_put_contents($gitignorePath, $content);
+            }
+        }
     }
 
     /**
