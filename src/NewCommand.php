@@ -208,6 +208,7 @@ class NewCommand extends Command
                     ];
 
                     if ($input->isInteractive()) {
+                        $output->writeln("  <bg=magenta;fg=white> Creating new user </> Enter user information below:".PHP_EOL);
                         $commands[] = trim(sprintf(
                             $this->phpBinary().' artisan filament:user',
                         ));
