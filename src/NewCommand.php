@@ -6,8 +6,6 @@ use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Composer;
 use Illuminate\Support\ProcessUtils;
 use Illuminate\Support\Str;
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
 use RuntimeException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -51,8 +49,6 @@ class NewCommand extends Command
     /**
      * Interact with the user before validating the input.
      *
-     * @param  \Symfony\Component\Console\Input\InputInterface  $input
-     * @param  \Symfony\Component\Console\Output\OutputInterface  $output
      * @return void
      */
     protected function interact(InputInterface $input, OutputInterface $output)
@@ -61,7 +57,7 @@ class NewCommand extends Command
 
         $this->configurePrompts($input, $output);
 
-        $output->write(PHP_EOL.'  <fg=magenta>  _____ _                  
+        $output->write(PHP_EOL . '  <fg=magenta>  _____ _                  
   / ____| | Welcome on                 
  | (___ | |_ __ _  __ _  ___ 
   \___ \| __/ _` |/ _` |/ _ \
@@ -69,7 +65,7 @@ class NewCommand extends Command
  |_____/ \__\__,_|\__, |\___|
                    __/ |     
                   |___/      
-</>'.PHP_EOL.PHP_EOL);
+</>' . PHP_EOL . PHP_EOL);
 
         $this->ensureExtensionsAreAvailable($input, $output);
 
@@ -104,9 +100,6 @@ class NewCommand extends Command
     /**
      * Ensure that the required PHP extensions are installed.
      *
-     * @param  \Symfony\Component\Console\Input\InputInterface  $input
-     * @param  \Symfony\Component\Console\Output\OutputInterface  $output
-     * @return void
      *
      * @throws \RuntimeException
      */
@@ -135,10 +128,6 @@ class NewCommand extends Command
 
     /**
      * Execute the command.
-     *
-     * @param  \Symfony\Component\Console\Input\InputInterface  $input
-     * @param  \Symfony\Component\Console\Output\OutputInterface  $output
-     * @return int
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
@@ -148,7 +137,7 @@ class NewCommand extends Command
 
         $directory = $this->getInstallationDirectory($name);
 
-        $this->composer = new Composer(new Filesystem(), $directory);
+        $this->composer = new Composer(new Filesystem, $directory);
 
         if (! $input->getOption('force')) {
             $this->verifyApplicationDoesntExist($directory);
@@ -161,12 +150,12 @@ class NewCommand extends Command
         $composer = $this->findComposer();
         $phpBinary = $this->phpBinary();
 
-        $createProjectCommand = $composer." create-project backstage/stage \"$directory\" --remove-vcs --prefer-dist --no-scripts --stability=dev";
+        $createProjectCommand = $composer . " create-project backstage/stage \"$directory\" --remove-vcs --prefer-dist --no-scripts --stability=dev";
 
         $commands = [
             $createProjectCommand,
-            $composer." run post-root-package-install -d \"$directory\"",
-            $phpBinary." \"$directory/artisan\" key:generate --ansi",
+            $composer . " run post-root-package-install -d \"$directory\"",
+            $phpBinary . " \"$directory/artisan\" key:generate --ansi",
         ];
 
         if ($directory != '.' && $input->getOption('force')) {
@@ -185,13 +174,13 @@ class NewCommand extends Command
             if ($name !== '.') {
                 $this->replaceInFile(
                     'APP_URL=http://localhost',
-                    'APP_URL='.$this->generateAppUrl($name, $directory),
-                    $directory.'/.env'
-                )
-                ;$this->replaceInFile(
+                    'APP_URL=' . $this->generateAppUrl($name, $directory),
+                    $directory . '/.env'
+                );
+                $this->replaceInFile(
                     'DB_DATABASE=site',
-                    'DB_DATABASE='.str_replace('-', '_', strtolower($name)),
-                    $directory.'/.env'
+                    'DB_DATABASE=' . str_replace('-', '_', strtolower($name)),
+                    $directory . '/.env'
                 );
 
                 [$database, $migrate] = $this->promptForDatabaseOptions($directory, $input);
@@ -202,15 +191,15 @@ class NewCommand extends Command
 
                     $commands = [
                         trim(sprintf(
-                            $this->phpBinary().' artisan backstage:upgrade %s',
+                            $this->phpBinary() . ' artisan backstage:upgrade %s',
                             ! $input->isInteractive() ? '--no-interaction' : '',
                         )),
                     ];
 
                     if ($input->isInteractive()) {
-                        $output->writeln("  <bg=magenta;fg=white> Creating new user </> Enter user information below:".PHP_EOL);
+                        $output->writeln('  <bg=magenta;fg=white> Creating new user </> Enter user information below:' . PHP_EOL);
                         $commands[] = trim(sprintf(
-                            $this->phpBinary().' artisan filament:user',
+                            $this->phpBinary() . ' artisan filament:user',
                         ));
                     }
 
@@ -224,12 +213,12 @@ class NewCommand extends Command
 
             $this->runCommands(['npm install', 'npm run build'], $input, $output, workingPath: $directory);
 
-            $output->writeln("  <bg=magenta;fg=white> INFO </> The stage <options=bold>[{$name}]</> is yours. You can start your local development using:".PHP_EOL);
-            $output->writeln('<fg=gray>➜</> <options=bold>cd '.$name.'</>');
+            $output->writeln("  <bg=magenta;fg=white> INFO </> The stage <options=bold>[{$name}]</> is yours. You can start your local development using:" . PHP_EOL);
+            $output->writeln('<fg=gray>➜</> <options=bold>cd ' . $name . '</>');
 
             if ($this->isParkedOnHerdOrValet($directory)) {
                 $url = $this->generateAppUrl($name, $directory);
-                $output->writeln('<fg=gray>➜</> Open: <options=bold;href='.$url.'>'.$url.'</>');
+                $output->writeln('<fg=gray>➜</> Open: <options=bold;href=' . $url . '>' . $url . '</>');
             } else {
                 $output->writeln('<fg=gray>➜</> <options=bold>php artisan serve</>');
             }
@@ -244,23 +233,20 @@ class NewCommand extends Command
     /**
      * Configure the default database connection.
      *
-     * @param  string  $directory
-     * @param  string  $database
-     * @param  string  $name
      * @return void
      */
     protected function configureDefaultDatabaseConnection(string $directory, string $database, string $name)
     {
         $this->pregReplaceInFile(
             '/DB_CONNECTION=.*/',
-            'DB_CONNECTION='.$database,
-            $directory.'/.env'
+            'DB_CONNECTION=' . $database,
+            $directory . '/.env'
         );
 
         $this->pregReplaceInFile(
             '/DB_CONNECTION=.*/',
-            'DB_CONNECTION='.$database,
-            $directory.'/.env.example'
+            'DB_CONNECTION=' . $database,
+            $directory . '/.env.example'
         );
 
         $this->uncommentDatabaseConfiguration($directory);
@@ -273,34 +259,33 @@ class NewCommand extends Command
         if (isset($defaultPorts[$database])) {
             $this->replaceInFile(
                 'DB_PORT=3306',
-                'DB_PORT='.$defaultPorts[$database],
-                $directory.'/.env'
+                'DB_PORT=' . $defaultPorts[$database],
+                $directory . '/.env'
             );
 
             $this->replaceInFile(
                 'DB_PORT=3306',
-                'DB_PORT='.$defaultPorts[$database],
-                $directory.'/.env.example'
+                'DB_PORT=' . $defaultPorts[$database],
+                $directory . '/.env.example'
             );
         }
 
         $this->replaceInFile(
             'DB_DATABASE=laravel',
-            'DB_DATABASE='.str_replace('-', '_', strtolower($name)),
-            $directory.'/.env'
+            'DB_DATABASE=' . str_replace('-', '_', strtolower($name)),
+            $directory . '/.env'
         );
 
         $this->replaceInFile(
             'DB_DATABASE=laravel',
-            'DB_DATABASE='.str_replace('-', '_', strtolower($name)),
-            $directory.'/.env.example'
+            'DB_DATABASE=' . str_replace('-', '_', strtolower($name)),
+            $directory . '/.env.example'
         );
     }
 
     /**
      * Uncomment the relevant database configuration entries for non SQLite applications.
      *
-     * @param  string  $directory
      * @return void
      */
     protected function uncommentDatabaseConfiguration(string $directory)
@@ -316,21 +301,19 @@ class NewCommand extends Command
         $this->replaceInFile(
             $defaults,
             collect($defaults)->map(fn ($default) => substr($default, 2))->all(),
-            $directory.'/.env'
+            $directory . '/.env'
         );
 
         $this->replaceInFile(
             $defaults,
             collect($defaults)->map(fn ($default) => substr($default, 2))->all(),
-            $directory.'/.env.example'
+            $directory . '/.env.example'
         );
     }
 
     /**
      * Determine the default database connection.
      *
-     * @param  string  $directory
-     * @param  \Symfony\Component\Console\Input\InputInterface  $input
      * @return array
      */
     protected function promptForDatabaseOptions(string $directory, InputInterface $input)
@@ -356,8 +339,6 @@ class NewCommand extends Command
 
     /**
      * Get the available database options.
-     *
-     * @return array
      */
     protected function databaseOptions(): array
     {
@@ -368,7 +349,7 @@ class NewCommand extends Command
             'sqlsrv' => ['SQL Server', extension_loaded('pdo_sqlsrv')],
         ])
             ->sortBy(fn ($database) => $database[1] ? 0 : 1)
-            ->map(fn ($database) => $database[0].($database[1] ? '' : ' (Missing PDO extension)'))
+            ->map(fn ($database) => $database[0] . ($database[1] ? '' : ' (Missing PDO extension)'))
             ->all();
     }
 
@@ -380,15 +361,12 @@ class NewCommand extends Command
     protected function validateDatabaseOption(InputInterface $input)
     {
         if ($input->getOption('database') && ! in_array($input->getOption('database'), $drivers = ['mysql', 'mariadb', 'pgsql', 'sqlsrv'])) {
-            throw new \InvalidArgumentException("Invalid database driver [{$input->getOption('database')}]. Valid options are: ".implode(', ', $drivers).'.');
+            throw new \InvalidArgumentException("Invalid database driver [{$input->getOption('database')}]. Valid options are: " . implode(', ', $drivers) . '.');
         }
     }
 
     /**
      * Configure the Composer "dev" script.
-     *
-     * @param  string  $directory
-     * @return void
      */
     protected function configureComposerDevScript(string $directory): void
     {
@@ -406,17 +384,14 @@ class NewCommand extends Command
 
     /**
      * Configure the .gitignore file for the project.
-     *
-     * @param  string  $directory
-     * @return void
      */
     protected function configureGitignore(string $directory): void
     {
-        $gitignorePath = $directory.'/.gitignore';
-        
+        $gitignorePath = $directory . '/.gitignore';
+
         if (file_exists($gitignorePath)) {
             $content = file_get_contents($gitignorePath);
-            
+
             // Add /public/fonts if it's not already present
             if (strpos($content, '/public/fonts') === false) {
                 $content = rtrim($content) . PHP_EOL . '/public/fonts' . PHP_EOL;
@@ -447,9 +422,9 @@ class NewCommand extends Command
      */
     protected function generateAppUrl($name, $directory)
     {
-        $hostname = mb_strtolower($name).'.'.$this->getTld();
+        $hostname = mb_strtolower($name) . '.' . $this->getTld();
 
-        return $this->canResolveHostname($hostname) ? 'https://'.$hostname : 'https://'. $directory .'.test';
+        return $this->canResolveHostname($hostname) ? 'https://' . $hostname : 'https://' . $directory . '.test';
     }
 
     /**
@@ -470,18 +445,17 @@ class NewCommand extends Command
      */
     protected function canResolveHostname($hostname)
     {
-        return gethostbyname($hostname.'.') !== $hostname.'.';
+        return gethostbyname($hostname . '.') !== $hostname . '.';
     }
 
     /**
      * Get the installation directory.
      *
-     * @param  string  $name
      * @return string
      */
     protected function getInstallationDirectory(string $name)
     {
-        return $name !== '.' ? getcwd().'/'.$name : '.';
+        return $name !== '.' ? getcwd() . '/' . $name : '.';
     }
 
     /**
@@ -514,31 +488,27 @@ class NewCommand extends Command
      * Run the given commands.
      *
      * @param  array  $commands
-     * @param  \Symfony\Component\Console\Input\InputInterface  $input
-     * @param  \Symfony\Component\Console\Output\OutputInterface  $output
-     * @param  string|null  $workingPath
-     * @param  array  $env
      * @return \Symfony\Component\Process\Process
      */
     protected function runCommands($commands, InputInterface $input, OutputInterface $output, ?string $workingPath = null, array $env = [])
     {
         if (! $output->isDecorated()) {
             $commands = array_map(function ($value) {
-                if (Str::startsWith($value, ['chmod', 'git', $this->phpBinary().' ./vendor/bin/pest'])) {
+                if (Str::startsWith($value, ['chmod', 'git', $this->phpBinary() . ' ./vendor/bin/pest'])) {
                     return $value;
                 }
 
-                return $value.' --no-ansi';
+                return $value . ' --no-ansi';
             }, $commands);
         }
 
         if ($input->getOption('quiet')) {
             $commands = array_map(function ($value) {
-                if (Str::startsWith($value, ['chmod', 'git', $this->phpBinary().' ./vendor/bin/pest'])) {
+                if (Str::startsWith($value, ['chmod', 'git', $this->phpBinary() . ' ./vendor/bin/pest'])) {
                     return $value;
                 }
 
-                return $value.' --quiet';
+                return $value . ' --quiet';
             }, $commands);
         }
 
@@ -548,12 +518,12 @@ class NewCommand extends Command
             try {
                 $process->setTty(true);
             } catch (RuntimeException $e) {
-                $output->writeln('  <bg=yellow;fg=black> WARN </> '.$e->getMessage().PHP_EOL);
+                $output->writeln('  <bg=yellow;fg=black> WARN </> ' . $e->getMessage() . PHP_EOL);
             }
         }
 
         $process->run(function ($type, $line) use ($output) {
-            $output->write('    '.$line);
+            $output->write('    ' . $line);
         });
 
         return $process;
@@ -562,13 +532,11 @@ class NewCommand extends Command
     /**
      * Replace the given file.
      *
-     * @param  string  $replace
-     * @param  string  $file
      * @return void
      */
     protected function replaceFile(string $replace, string $file)
     {
-        $stubs = dirname(__DIR__).'/stubs';
+        $stubs = dirname(__DIR__) . '/stubs';
 
         file_put_contents(
             $file,
@@ -579,12 +547,9 @@ class NewCommand extends Command
     /**
      * Replace the given string in the given file.
      *
-     * @param  string|array  $search
-     * @param  string|array  $replace
-     * @param  string  $file
      * @return void
      */
-    protected function replaceInFile(string|array $search, string|array $replace, string $file)
+    protected function replaceInFile(string | array $search, string | array $replace, string $file)
     {
         file_put_contents(
             $file,
@@ -597,7 +562,6 @@ class NewCommand extends Command
      *
      * @param  string|array  $search
      * @param  string|array  $replace
-     * @param  string  $file
      * @return void
      */
     protected function pregReplaceInFile(string $pattern, string $replace, string $file)
@@ -611,7 +575,6 @@ class NewCommand extends Command
     /**
      * Delete the given file.
      *
-     * @param  string  $file
      * @return void
      */
     protected function deleteFile(string $file)
