@@ -19,8 +19,6 @@ trait ConfiguresPrompts
     /**
      * Configure the prompt fallbacks.
      *
-     * @param  \Symfony\Component\Console\Input\InputInterface  $input
-     * @param  \Symfony\Component\Console\Output\OutputInterface  $output
      * @return void
      */
     protected function configurePrompts(InputInterface $input, OutputInterface $output)
@@ -66,13 +64,15 @@ trait ConfiguresPrompts
             }
 
             return $this->promptUntilValid(
-                fn () => collect((new SymfonyStyle($input, $output))->choice(
-                    $prompt->label,
-                    array_is_list($prompt->options)
+                fn () => collect(
+                    (new SymfonyStyle($input, $output))->choice(
+                        $prompt->label,
+                        array_is_list($prompt->options)
                         ? ['None', ...$prompt->options]
                         : ['none' => 'None', ...$prompt->options],
-                    'None',
-                    true)
+                        'None',
+                        true
+                    )
                 )->reject(array_is_list($prompt->options) ? 'None' : 'none')->all(),
                 $prompt->required,
                 $prompt->validate,
@@ -111,7 +111,7 @@ trait ConfiguresPrompts
             $result = $prompt();
 
             if ($required && ($result === '' || $result === [] || $result === false)) {
-                $output->writeln('<error>'.(is_string($required) ? $required : 'Required.').'</error>');
+                $output->writeln('<error>' . (is_string($required) ? $required : 'Required.') . '</error>');
 
                 continue;
             }
